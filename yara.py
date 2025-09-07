@@ -40,7 +40,9 @@ Detection is based on 4 methods:
 
 📸 Example scan (lab screenshot):  
 
-![YARA Example Detection](../../Pictures/yara_file1.png)  
+![YARA Example Detection](
+
+print("YARA Example Detection: images/yara_file1.png")
 
 ---
 
