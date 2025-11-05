@@ -11,7 +11,7 @@ We’ll explore two scenarios:
 
 ## ⚔️ Scenario 1 — Detecting and Stopping a Brute Force Attack  
 
-
+![Snort Initial Capture](./snortc1.png)
 
 ### 🧩 Situation  
 A brute-force attack was detected targeting the company’s SSH service.  
@@ -27,7 +27,6 @@ Run Snort to capture live packets:
 ubuntu@ip-10-201-53-206:~$ sudo snort -dev -l .
 
 📸 Screenshot:
-![Snort Initial Capture](./snortc1.png)
 
 After capturing the packets, press Ctrl + C to stop the process.
 🗂️ Step 2: Check and Read the Log File
