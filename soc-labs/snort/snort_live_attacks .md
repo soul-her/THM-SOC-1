@@ -1,118 +1,153 @@
-# 🛡️ Snort IDS/IPS Writeup
+# 🧠 Snort Intrusion Detection and Prevention Lab  
 
-## SCENARIO 1 — Detecting and Blocking a Brute-Force Attack
+## 🔹 Introduction  
+In this lab, we used **Snort**, an open-source **Network Intrusion Detection and Prevention System (IDS/IPS)**, to detect and prevent real-time network threats.  
 
-There’s an ongoing brute-force attack on your company’s system.  
-As the cybersecurity specialist, it’s your responsibility to protect the company’s privacy.  
-We’ll use **Snort** to observe the network traffic, identify the anomaly, and create a rule to stop the attack.
+We’ll explore two scenarios:  
+1. 🚨 **Brute Force Attack Detection & Mitigation**  
+2. 🕵️ **Outbound Reverse Shell Detection**
 
 ---
 
-### Step 1: Observe Network Traffic
+## ⚔️ Scenario 1 — Detecting and Stopping a Brute Force Attack  
+(./snortc1.png)
+### 🧩 Situation  
+A brute-force attack was detected targeting the company’s SSH service.  
+As the cybersecurity specialist, your task is to **analyze Snort traffic logs**, identify the anomaly, and **create a rule to stop the attack**.
 
-Run Snort in verbose mode to capture and log packets:
+---
+
+### 🔍 Step 1: Observe the Network Traffic  
+
+Run Snort to capture live packets:  
 
 ```bash
-sudo snort -dev -l .
+ubuntu@ip-10-201-53-206:~$ sudo snort -dev -l .
 
-After running Snort for a short period, press Ctrl + C to stop the capture.
-Then, list the directory to verify that the log file was created:
+📸 Screenshot:
+(./snortc2.png)
 
-ls
+After capturing the packets, press Ctrl + C to stop the process.
+🗂️ Step 2: Check and Read the Log File
 
-Step 2: Analyze the Captured Packets
+List the directory to confirm the log file was generated:
 
-View the contents of the log file to inspect network activity:
+ubuntu@ip-10-201-53-206:~$ ls
 
-sudo snort -r snort.log.1758627467
+Then analyze the captured log:
 
-During analysis, we notice suspicious repeated connections targeting port 22 (SSH):
+ubuntu@ip-10-201-53-206:~$ sudo snort -r snort.log.1758627467
 
-sudo snort -r snort.log.1758627467 "port 22"
+Upon inspection, a suspicious repeated connection to port 22 (SSH) was observed:
 
-Or filter the log for clearer visibility:
+    10.10.140.29:22 -> 10.10.245.36:46610
 
-sudo snort -r snort.log.1758627467 | grep ":22"
+This pattern indicates a potential brute-force attack targeting SSH.
+🔎 Step 3: Filter SSH Traffic for Confirmation
 
-Here, the red-marked section indicates multiple attempts to connect through port 22, suggesting a brute-force SSH attack.
+Filter logs referencing port 22 to confirm repetitive SSH access attempts:
 
-The suspicious traffic shows repeated attempts from:
+ubuntu@ip-10-201-53-206:~$ sudo snort -r snort.log.1758627467 "port 22"
 
-10.10.140.29:22 -> 10.10.245.36:46610
+or
 
-Step 3: Create a Snort Rule to Block the Attack
+ubuntu@ip-10-201-53-206:~$ sudo snort -r snort.log.1758627467 | grep ":22"
 
-Now that we’ve identified the attacker, let’s edit the Snort local rules file:
+📸 Screenshot:
+(./snortc3.png)
 
-sudo mousepad /etc/snort/rules/local.rules
+The red-marked area highlights multiple connection attempts on port 22, confirming a brute-force attack.
+🛡️ Step 4: Add a Snort Rule to Block the Attack
+
+Open Snort’s local rules file to add a blocking rule:
+
+ubuntu@ip-10-201-53-206:~$ sudo mousepad /etc/snort/rules/local.rules
 
 Add the following rule:
 
 drop tcp any any <> any 22 (msg:"SSH Brute Force Attack Prevented - Packet Dropped"; sid:100001; rev:1)
 
-This rule drops any TCP traffic targeting port 22, effectively blocking brute-force attempts.
-Step 4: Run Snort in Inline Mode
+💡 Explanation:
 
-To enforce the new rule, run Snort in inline mode:
+    drop → Drops the matching packets
 
-sudo snort -Q --daq afpacket -i eth0:eth1 -dev -c /etc/snort/snort.conf -A full -l .
+    tcp any any <> any 22 → Matches any TCP traffic destined for port 22
 
-Snort will now monitor and drop packets that match your rule, preventing further SSH brute-force attacks.
-SCENARIO 2 — Detecting and Blocking a Reverse Shell Connection
+    msg → Displays a custom alert message
 
-After securing SSH, your team wants to perform a quick scan to investigate suspicious outbound traffic that might indicate a reverse shell.
-Step 1: Capture Outbound Traffic
+    sid → Unique Snort rule identifier
 
-Run Snort again to capture network packets:
+    rev → Revision number for the rule
 
-sudo snort -dev -l .
+✅ Step 5: Run Snort in Inline Mode to Enforce the Rule
 
-After capturing for a bit, stop it using Ctrl + C, and then inspect the log.
-Step 2: Analyze the Log for Suspicious Ports
+Finally, run Snort with the new configuration in inline (active blocking) mode:
 
-We’ll analyze the logs to look for traffic on unusual ports (e.g., 4444 — often used by reverse shells):
+ubuntu@ip-10-201-53-206:~$ sudo snort -Q --daq afpacket -i eth0:eth1 -dev -c /etc/snort/snort.conf -A full -l .
 
-sudo snort -r snort.log.1758629770 | grep ":4444"
+Now, Snort actively drops any malicious SSH brute-force attempts detected on port 22.
+🧰 Scenario 2 — Detecting Outbound Reverse Shell Connections
+🧩 Situation
 
-Port 4444 appears in the traffic — confirming potential reverse shell activity.
-Step 3: Create a Rule to Block the Reverse Shell
+The team suspects outbound traffic anomalies, possibly indicating a reverse shell.
+We’ll capture and analyze traffic, then write a rule to block it.
+🔍 Step 1: Capture Outbound Traffic
 
-Let’s edit our Snort rules again:
+Run Snort to start capturing packets:
 
-sudo mousepad /etc/snort/rules/local.rules
+ubuntu@ip-10-10-240-199:~$ sudo snort -dev -l .
 
-Add this rule:
+After a short capture period, stop Snort with Ctrl + C.
+🔎 Step 2: Analyze the Captured Logs
+
+Filter the captured packets to check for port 4444, commonly used for reverse shells:
+
+ubuntu@ip-10-10-240-199:~$ sudo snort -r snort.log.1758629770 | grep ":4444"
+
+📸 Screenshot:
+
+Here, port 4444 is actively used, confirming potential reverse shell activity.
+🛡️ Step 3: Add a Rule to Block the Reverse Shell
+
+Open the Snort rules file again:
+
+ubuntu@ip-10-10-240-199:~$ sudo mousepad /etc/snort/rules/local.rules
+
+Add the following rule:
 
 reject tcp any 4444 <> any any (msg:"Reverse Shell Prevented - Packet Dropped"; sid:100002; rev:1)
 
-This rule rejects any TCP traffic associated with port 4444, effectively blocking reverse shell connections.
-Step 4: Apply and Verify the Rule
+💡 Explanation:
 
-Run Snort in inline mode again to enforce all current rules:
+    reject → Blocks and sends a TCP reset to both sides
+
+    tcp any 4444 <> any any → Detects any TCP traffic using port 4444
+
+    msg → Displays the prevention message
+
+    sid → Unique Snort rule ID
+
+    rev → Rule version
+
+✅ Step 4: Enforce the Rule
+
+Run Snort again in inline mode to apply and verify the rule:
 
 sudo snort -Q --daq afpacket -i eth0:eth1 -dev -c /etc/snort/snort.conf -A full -l .
 
-If configured correctly, Snort will reject malicious packets attempting to communicate over port 4444.
-✅ Summary
-Scenario	Threat	Port	Action	Rule Type	Status
-1	SSH Brute Force	22	Dropped	drop	✅ Prevented
-2	Reverse Shell	4444	Rejected	reject	✅ Prevented
-🧠 Key Takeaways
+Snort will now automatically detect and drop reverse shell connections on port 4444.
+🧾 Summary
+Scenario	Threat Type	Port	Action	Status
+1	SSH Brute Force	22	Dropped	✅ Prevented
+2	Reverse Shell	4444	Rejected	✅ Prevented
+🧩 Conclusion
 
-    Snort is a powerful tool for both Intrusion Detection (IDS) and Intrusion Prevention (IPS).
+Through both scenarios, we demonstrated:
 
-    Regularly inspecting captured traffic helps uncover attack patterns.
+    Real-time detection of network anomalies using Snort
 
-    Writing custom rules tailors Snort’s protection to specific threats.
+    Writing custom rules to block specific attack patterns
 
-    Running Snort in inline mode (-Q) ensures real-time packet blocking.
+    Using inline mode to actively prevent malicious packets
 
-📸 Screenshots
-
-All images used:
-
-    snortc1.png — Initial traffic capture
-
-    snortc2.png — SSH brute-force evidence
-
-    snortc3.png — Reverse shell detection
+Snort remains a powerful open-source IDS/IPS solution capable of defending against a wide range of cyberattacks when configured correctly.
