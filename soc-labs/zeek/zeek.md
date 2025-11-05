@@ -1,128 +1,150 @@
-Zeek (formerly Bro) is an open-source and commercial passive 
-Network Monitoring tool (traffic analysis framework) developed by Lawrence Berkeley Labs.
-Zeek differs from known monitoring and IDS/IPS tools by providing a wide range of detailed 
-logs ready to investigate both for forensics and data analysis actions. Currently, Zeek provides 
-50+ logs in 7 categories.
+# 🕵️‍♂️ Zeek (formerly Bro) – Network Monitoring and Analysis Lab  
 
-Main Zeek command line parameters are explained below;
-Parameter	Description
--r	 Reading option, read/process a pcap file.
--C	 Ignoring checksum errors.
--v	 Version information.
-zeekctl	ZeekControl module.
+## 🔹 Introduction  
+**Zeek** (formerly **Bro**) is an open-source and commercial **passive network monitoring tool** developed by **Lawrence Berkeley Labs**.  
+Unlike traditional IDS/IPS tools, Zeek focuses on providing **comprehensive, structured logs** for **forensic investigation**, **threat hunting**, and **network behavior analysis**.  
 
-Category
-	Command Purpose and Usage 
-	Category
-	Command Purpose and Usage 
-Basics
-	
+Zeek can generate **50+ types of logs** across **7 categories**, covering a wide range of network activities such as **DNS**, **HTTP**, **SSL**, and **connection tracking**.
 
-View the command history:
-ubuntu@ubuntu$ history
+---
 
-Execute the 10th command in history:
-ubuntu@ubuntu$ !10
+## 🔹 Zeek Command Line Overview  
 
-Execute the previous command:
-ubuntu@ubuntu$ !!
-	Read File	
+| **Parameter** | **Description** |
+|---------------|----------------|
+| `-r` | Read and process a `.pcap` file. |
+| `-C` | Ignore checksum errors. |
+| `-v` | Show version information. |
+| `zeekctl` | Manage Zeek processes and configurations (ZeekControl module). |
 
+---
 
-Read sample.txt file:
-ubuntu@ubuntu$ cat sample.txt
+## 🔹 Useful Linux Commands for Zeek Analysis  
 
-Read the first 10 lines of the file:
-ubuntu@ubuntu$ head sample.txt
+### 🧱 Basics
 
-Read the last 10 lines of the file:
-ubuntu@ubuntu$ tail sample.txt
+| **Command** | **Description** |
+|--------------|----------------|
+| `history` | View command history. |
+| `!10` | Execute the 10th command from history. |
+| `!!` | Execute the previous command again. |
 
-Find
-&
-Filter
-	
+---
 
+### 📂 Reading Files
 
-Cut the 1st field:
-ubuntu@ubuntu$ cat test.txt | cut -f 1
+| **Command** | **Description** |
+|--------------|----------------|
+| `cat sample.txt` | Display file contents. |
+| `head sample.txt` | Display the first 10 lines of a file. |
+| `tail sample.txt` | Display the last 10 lines of a file. |
 
-Cut the 1st column:
-ubuntu@ubuntu$ cat test.txt | cut -c1
+---
 
-Filter specific keywords:
-ubuntu@ubuntu$ cat test.txt | grep 'keywords'
+### 🔍 Searching & Filtering
 
-Sort outputs alphabetically:
-ubuntu@ubuntu$ cat test.txt | sort
+| **Command** | **Description** |
+|--------------|----------------|
+| `cat test.txt \| cut -f 1` | Cut the first field (tab-delimited). |
+| `cat test.txt \| cut -c1` | Cut the first character. |
+| `cat test.txt \| grep 'keyword'` | Filter lines containing a keyword. |
+| `cat test.txt \| sort` | Sort lines alphabetically. |
+| `cat test.txt \| sort -n` | Sort lines numerically. |
+| `cat test.txt \| uniq` | Remove duplicate lines. |
+| `cat test.txt \| wc -l` | Count the number of lines. |
+| `cat test.txt \| nl` | Add line numbers to each line. |
 
-Sort outputs numerically:
-ubuntu@ubuntu$ cat test.txt | sort -n
+---
 
-Eliminate duplicate lines:
-ubuntu@ubuntu$ cat test.txt | uniq
+### ⚙️ Advanced Text Processing
 
-Count line numbers:
-ubuntu@ubuntu$ cat test.txt | wc -l
+| **Command** | **Description** |
+|--------------|----------------|
+| `cat test.txt \| sed -n '11p'` | Print line 11. |
+| `cat test.txt \| sed -n '10,15p'` | Print lines 10–15. |
+| `cat test.txt \| awk 'NR < 11 {print $0}'` | Print lines below line 11. |
+| `cat test.txt \| awk 'NR == 11 {print $0}'` | Print only line 11. |
 
-Show line numbers
-ubuntu@ubuntu$ cat test.txt | nl
-	Advanced
-	
+---
 
+### 📊 Zeek-Specific Operations
 
-Print line 11:
-ubuntu@ubuntu$ cat test.txt | sed -n '11p'
+| **Command** | **Description** |
+|--------------|----------------|
+| `cat signatures.log \| zeek-cut uid src_addr dst_addr` | Extract specific fields from Zeek logs. |
 
-Print lines between 10-15:
-ubuntu@ubuntu$ cat test.txt | sed -n '10,15p'
+---
 
-Print lines below 11:
-ubuntu@ubuntu$ cat test.txt | awk 'NR < 11 {print $0}'
+## 🔹 Common Log Analysis Use Cases  
 
-Print line 11:
-ubuntu@ubuntu$ cat test.txt | awk 'NR == 11 {print $0}'
-Special	
-Filter specific fields of Zeek logs:
-ubuntu@ubuntu$ cat signatures.log | zeek-cut uid src_addr dst_addr
-Use Case	Description
+| **Command / Combination** | **Description** |
+|----------------------------|----------------|
+| `sort \| uniq` | Remove duplicate values. |
+| `sort \| uniq -c` | Count occurrences of unique values. |
+| `sort -nr` | Sort numerically in reverse order. |
+| `rev` | Reverse string characters. |
+| `cut -f 1` | Cut the first field. |
+| `cut -d '.' -f 1-2` | Split a string by dots and keep the first two parts. |
+| `grep -v 'test'` | Exclude lines containing “test”. |
+| `grep -v -e 'test1' -e 'test2'` | Exclude multiple keywords. |
+| `file` | Display file type information. |
+| `grep -rin 'Testvalue1' * \| column -t \| less -S` | Recursively search for a string, format columns, and paginate the output. |
 
-sort | uniq
-	Remove duplicate values.
+---
 
-sort | uniq -c 
-	Remove duplicates and count the number of occurrences for each value.
+## 🔹 Zeek DNS Tunneling Investigation  
 
-sort -nr
-	Sort values numerically and recursively.
+📸 **Screenshot:**  
+![Zeek DNS Log Analysis](./snort1.png)
 
-rev
-	Reverse string characters.
+---
 
-cut -f 1
-	Cut field 1.
+### 🧩 Scenario Overview  
+In this case study, Zeek triggered an alert:  
+> **“Anomalous DNS Activity Detected.”**
 
-cut -d '.' -f 1-2
-	Split the string on every dot and print keep the first two fields.
+The incident was assigned to an analyst to determine if it was a **true positive** by inspecting the **PCAP** and **Zeek DNS logs**.
 
-grep -v 'test'
-	Display lines that  don't match the "test" string.
+---
 
-grep -v -e 'test1' -e 'test2'
-	Display lines that don't match one or both "test1" and "test2" strings.
+### 🧭 Investigation Steps  
 
-file  
-	View file information.
+1. **Navigate to the working directory:**
+   ```bash
+   ubuntu@ip-10-201-20-104:~/Desktop/Exercise-Files/anomalous-dns$ ls -al
 
-grep -rin Testvalue1 * | column -t | less -S
-	Search the "Testvalue1" string everywhere, organise column spaces and view the output with less.
+Files available for analysis:
 
-(snort1.png)
-in here as we go and check the host name 
+dns-tunneling.pcap
+dns.log
+conn.log
+weird.log
 
-An alert triggered: "Anomalous DNS Activity".
+2. Process the PCAP file with Zeek:
 
-The case was assigned to you. Inspect the PCAP and retrieve the artefacts to confirm this alert is a true positive. 
-Investigate the dns-tunneling.pcap file. Investigate the dns.log file. What is the number of DNS records linked to the IPv6 address?
+zeek -r dns-tunneling.pcap
 
-ubuntu@ip-10-201-20-104:~/Desktop/Exercise-Files/anomalous-dns$ ls -al
+3. Inspect DNS logs for suspicious queries:
+
+cat dns.log | zeek-cut id.orig_h id.resp_h query qtype_name
+
+4. Count DNS records linked to IPv6 addresses:
+
+    cat dns.log | zeek-cut id.resp_h | grep ':' | wc -l
+
+    🧠 This command filters IPv6 addresses (those containing :) and counts them.
+
+🔹 Result
+
+After reviewing the DNS traffic, the analyst confirmed that multiple DNS requests were directed toward IPv6 addresses, exhibiting patterns of DNS tunneling behavior.
+Thus, the alert “Anomalous DNS Activity” was verified as a True Positive.
+🧩 Conclusion
+
+Zeek’s structured logging and filtering capabilities make it a powerful tool for network forensics and threat analysis.
+By combining Linux command-line utilities with Zeek’s native logs, analysts can efficiently:
+
+    🔍 Extract suspicious indicators
+
+    ✅ Verify anomaly alerts
+
+    🧠 Detect potential data exfiltration methods such as DNS tunneling
