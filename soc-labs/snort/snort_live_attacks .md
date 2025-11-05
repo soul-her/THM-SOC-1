@@ -11,6 +11,8 @@ We’ll explore two scenarios:
 
 ## ⚔️ Scenario 1 — Detecting and Stopping a Brute Force Attack  
 
+![Snort Initial Capture](./snortc1.png)
+
 ### 🧩 Situation  
 A brute-force attack was detected targeting the company’s SSH service.  
 As the cybersecurity specialist, your task is to **analyze Snort traffic logs**, identify the anomaly, and **create a rule to stop the attack**.
@@ -25,7 +27,6 @@ Run Snort to capture live packets:
 ubuntu@ip-10-201-53-206:~$ sudo snort -dev -l .
 
 📸 Screenshot:
-![alt text](./snortc1.png)
 
 After capturing the packets, press Ctrl + C to stop the process.
 🗂️ Step 2: Check and Read the Log File
@@ -54,7 +55,6 @@ or
 ubuntu@ip-10-201-53-206:~$ sudo snort -r snort.log.1758627467 | grep ":22"
 
 📸 Screenshot:
-![alt text](./snortc2.png)
 
 The red-marked area highlights multiple connection attempts on port 22, confirming a brute-force attack.
 🛡️ Step 4: Add a Snort Rule to Block the Attack
@@ -105,7 +105,7 @@ Filter the captured packets to check for port 4444, commonly used for reverse sh
 ubuntu@ip-10-10-240-199:~$ sudo snort -r snort.log.1758629770 | grep ":4444"
 
 📸 Screenshot:
-![alt text](./snortc3.png)
+
 Here, port 4444 is actively used, confirming potential reverse shell activity.
 🛡️ Step 3: Add a Rule to Block the Reverse Shell
 
